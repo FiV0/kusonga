@@ -126,6 +126,35 @@
            with_dash.example.eight.TypeEight)
  (:require [with-dash.example.eight :as eight]))")
 
+(def ex-cljc2
+  "(ns example.cross2)
+
+(defn foo [] nil)")
+
+(def ex-cljc2-expected
+  "(ns example.moved.cross2)
+
+(defn foo [] nil)")
+
+(def ex-ten-clj
+  "(ns example.ten
+  (:require [example.cross2 :as cross2]))
+
+(example.cross2/foo)
+
+(cross2/foo)")
+
+(def ex-ten-cljs ex-ten-clj)
+
+(def ex-ten-clj-expected
+  "(ns example.ten
+  (:require [example.moved.cross2 :as cross2]))
+
+(example.moved.cross2/foo)
+
+(cross2/foo)")
+
+(def ex-ten-cljs-expected ex-ten-clj-expected)
 
 (defn- create-temp-dir! [dir-name]
   (let [temp-file (File/createTempFile dir-name nil)]
@@ -160,11 +189,15 @@
         file-cljc     (create-source-file! (io/file example-dir "cross.cljc") ex-cljc)
         file-seven-clj  (create-source-file! (io/file example-dir "seven.clj") ex-seven-clj)
         file-seven-cljs (create-source-file! (io/file example-dir "seven.cljs") ex-seven-cljs)
-        medley-dir   (io/file src-dir "medley")
-        file-medley  (create-source-file! (io/file medley-dir "core.clj") medley-stub) ;; needed
+        medley-dir    (io/file src-dir "medley")
+        file-medley   (create-source-file! (io/file medley-dir "core.clj") medley-stub)
         file-medley-user (create-source-file! (io/file example-dir "user" "medley.clj") medley-user-example)
-        file-eight   (create-source-file! (io/file example-dir "eight.clj") example-eight)
-        file-nine   (create-source-file! (io/file example-dir "nine.clj") example-nine)]
+        file-eight    (create-source-file! (io/file example-dir "eight.clj") example-eight)
+        file-nine     (create-source-file! (io/file example-dir "nine.clj") example-nine)
+        old-file-cljc2    (create-source-file! (io/file example-dir "cross2.cljc") ex-cljc2)
+        new-file-cljc2    (io/file example-dir "moved" "cross2.cljc")
+        file-ten-clj  (create-source-file! (io/file example-dir "ten.clj") ex-ten-clj)
+        file-ten-cljs (create-source-file! (io/file example-dir "ten.cljs") ex-ten-cljs)]
 
     (let [file-three-last-modified (.lastModified file-three)]
 
@@ -234,14 +267,22 @@
         (sut/move-ns 'example.seven 'example.clj.seven src-dir ".clj" [src-dir])
         (sut/move-ns 'example.seven 'example.cljs.seven src-dir ".cljs" [src-dir])
 
-        ;; (println "affected after move")
-        ;; (doseq [a [file-cljc]]
-        ;;   (println (.getAbsolutePath a))
-        ;;   (prn (slurp a)))
-
         (t/is (= (slurp file-cljc) ex-cljc-expected)))
 
       (t/testing "testing alias is first section of two section namespace"
         (sut/move-ns 'medley.core 'moved.medley.core src-dir ".clj" [src-dir])
 
-        (t/is (= (slurp file-medley-user) medley-user-expected))))))
+        (t/is (= (slurp file-medley-user) medley-user-expected)))
+
+
+      (t/testing "testing moving cljc and corresponding clj/cljc spaces"
+        (sut/move-ns 'example.cross2 'example.moved.cross2 src-dir ".cljc" [src-dir])
+
+        (t/is (.exists new-file-cljc2)
+              "new file should exist")
+        (t/is (= (slurp new-file-cljc2) ex-cljc2-expected)
+              "moved cljc file should have new location")
+        (t/is (= (slurp file-ten-clj) ex-ten-clj-expected)
+              "affected clj file not correct")
+        (t/is (= (slurp file-ten-cljs) ex-ten-cljs-expected)
+              "affected cljs file not correct")))))

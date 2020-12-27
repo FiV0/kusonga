@@ -282,7 +282,7 @@
    (clojure-source-files dirs extension)))
 
 (defn move-ns
-  "ALPHA: subject to change. Moves the .clj or .cljc source file (found relative
+  "ALPHA: subject to change. Moves the .clj, .cljc or .cljs source file (found relative
   to source-path) for the namespace named old-sym to new-sym and
   replace all occurrences of the old name with the new name in all
   Clojure source files found in dirs.
