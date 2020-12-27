@@ -1,0 +1,17 @@
+{:paths ["src" "resources"]
+
+ :deps
+ {org.clojure/clojure {:mvn/version "1.10.1"}}
+
+ :aliases
+ {:dev
+  {:extra-paths ["dev"]
+   :extra-deps  {}}
+
+  :test
+  {:extra-paths ["test"]
+   :extra-deps  {lambdaisland/kaocha {:mvn/version "1.0.632"}}}}
+
+ :mvn/repos
+ {"central"        {:url "https://repo1.maven.org/maven2/"}
+  "clojars"        {:url "https://clojars.org/repo"}}}
