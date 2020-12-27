@@ -89,7 +89,7 @@
   [(:require [example.seven :as seven-cljs])]))")
 
 (def ex-cljc-expected
-  "(ns ^{:inlined true} example.cross
+  "(ns example.cross
   #?@(:clj
   [(:require [example.clj.seven :as seven-clj])]
   :cljs
@@ -106,7 +106,7 @@
 (def medley-stub "(ns medley.core)")
 
 (def medley-user-expected
-  "(ns ^{:inlined true} example.user.medley
+  "(ns example.user.medley
  (:require [moved.medley.core :as medley]))")
 
 (def example-eight
@@ -170,7 +170,7 @@
 
       (Thread/sleep 1500) ;; ensure file timestamps are different
       (t/testing "move ns simple case, no dash, no deftype, defrecord"
-        (sut/move-ns 'example.a.four 'example.b.four src-dir ".clj" [src-dir] nil)
+        (sut/move-ns 'example.a.four 'example.b.four src-dir ".clj" [src-dir])
 
         ;; (println "affected after move")
         ;; (doseq [a [file-one file-two new-file-four]]
@@ -207,12 +207,12 @@
               "clj file wo/ ns macro is unchanged"))
 
       (t/testing "testing import deftype no dash, dash in the prefix"
-        (sut/move-ns 'example.eight 'with-dash.example.eight src-dir ".clj" [src-dir] nil)
+        (sut/move-ns 'example.eight 'with-dash.example.eight src-dir ".clj" [src-dir])
 
         (t/is (= (slurp file-nine) example-nine-expected)))
 
       (t/testing "move ns with dash, deftype, defrecord, import"
-        (sut/move-ns 'example.with-dash.six 'example.prefix.with-dash.six src-dir ".clj" [src-dir] :inlined)
+        (sut/move-ns 'example.with-dash.six 'example.prefix.with-dash.six src-dir ".clj" [src-dir])
 
         ;; (println "affected after move")
         ;; (doseq [a [file-three file-five new-file-six new-file-four]]
@@ -231,12 +231,12 @@
               "affected files should refer to new ns"))
 
       (t/testing "testing cljc file using :clj/cljs macros in require depending on same ns in clj and cljs"
-        (sut/move-ns 'example.seven 'example.clj.seven src-dir ".clj" [src-dir] nil)
-        (sut/move-ns 'example.seven 'example.cljs.seven src-dir ".cljs" [src-dir] nil)
+        (sut/move-ns 'example.seven 'example.clj.seven src-dir ".clj" [src-dir])
+        (sut/move-ns 'example.seven 'example.cljs.seven src-dir ".cljs" [src-dir])
 
         (t/is (= (slurp file-cljc) ex-cljc-expected)))
 
       (t/testing "testing alias is first section of two section namespace"
-        (sut/move-ns 'medley.core 'moved.medley.core src-dir ".clj" [src-dir] :inlined)
+        (sut/move-ns 'medley.core 'moved.medley.core src-dir ".clj" [src-dir])
 
         (t/is (= (slurp file-medley-user) medley-user-expected))))))
