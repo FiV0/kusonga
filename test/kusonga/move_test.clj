@@ -4,33 +4,14 @@
             [clojure.java.io :as io])
   (:import [java.io File]))
 
-(def ex-a-4
-  "(comment \"foobar comment here\")
+(def ex-1
+  "(ns example.one
+  (:require [example.two :as two]
+            [example.three :as three]))
 
-(ns example.a.four)
-
-(defn foo []
-  (println \"nuf said\"))
-
-(deftype FourType [field])
-
-(deftype FooType [])")
-
-(def ex-5
-  "(ns example.five
-  (:import [example.with_dash.six SomeType SomeRecord]))
-
-(defn- use-type-record []
-  (SomeType. :type)
-  (SomeRecord. :record))")
-
-(def ex-3
-  "(ns example.three
-  (:require [example.five :as five]))
-
-(defn use-ex-six-fully-qualified []
-  (example.with_dash.six.SomeType. :type)
-  (example.with_dash.six.SomeRecord. :record))")
+(defn foo [m]
+  (:example.a.four/bar m)
+  (example.a.four/foo))")
 
 (def ex-2
   "(ns
@@ -62,14 +43,33 @@
   [^example.a.four.FourType t]
   t)")
 
-(def ex-1
-  "(ns example.one
-  (:require [example.two :as two]
-            [example.three :as three]))
+(def ex-3
+  "(ns example.three
+  (:require [example.five :as five]))
 
-(defn foo [m]
-  (:example.a.four/bar m)
-  (example.a.four/foo))")
+(defn use-ex-six-fully-qualified []
+  (example.with_dash.six.SomeType. :type)
+  (example.with_dash.six.SomeRecord. :record))")
+
+(def ex-a-4
+  "(comment \"foobar comment here\")
+
+(ns example.a.four)
+
+(defn foo []
+  (println \"nuf said\"))
+
+(deftype FourType [field])
+
+(deftype FooType [])")
+
+(def ex-5
+  "(ns example.five
+  (:import [example.with_dash.six SomeType SomeRecord]))
+
+(defn- use-type-record []
+  (SomeType. :type)
+  (SomeRecord. :record))")
 
 (def ex-6-with-dash
   "(ns example.with-dash.six)
@@ -161,7 +161,7 @@
         file-seven-clj  (create-source-file! (io/file example-dir "seven.clj") ex-seven-clj)
         file-seven-cljs (create-source-file! (io/file example-dir "seven.cljs") ex-seven-cljs)
         medley-dir   (io/file src-dir "medley")
-        file-medley  (create-source-file! (io/file medley-dir "core.clj") medley-stub)
+        file-medley  (create-source-file! (io/file medley-dir "core.clj") medley-stub) ;; needed
         file-medley-user (create-source-file! (io/file example-dir "user" "medley.clj") medley-user-example)
         file-eight   (create-source-file! (io/file example-dir "eight.clj") example-eight)
         file-nine   (create-source-file! (io/file example-dir "nine.clj") example-nine)]
@@ -233,6 +233,11 @@
       (t/testing "testing cljc file using :clj/cljs macros in require depending on same ns in clj and cljs"
         (sut/move-ns 'example.seven 'example.clj.seven src-dir ".clj" [src-dir])
         (sut/move-ns 'example.seven 'example.cljs.seven src-dir ".cljs" [src-dir])
+
+        ;; (println "affected after move")
+        ;; (doseq [a [file-cljc]]
+        ;;   (println (.getAbsolutePath a))
+        ;;   (prn (slurp a)))
 
         (t/is (= (slurp file-cljc) ex-cljc-expected)))
 
