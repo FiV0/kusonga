@@ -156,6 +156,50 @@
 
 (def ex-ten-cljs-expected ex-ten-clj-expected)
 
+(def ex-eleven
+  "(ns example.eleven)
+
+(defn foo [] nil)")
+
+(def ex-eleven-expected
+  "(ns example.moved.eleven)
+
+(defn foo [] nil)")
+
+(def ex-eleven-bar
+  "(ns example.eleven.bar
+  (:require [example.eleven]))
+
+(example.eleven/foo)")
+
+(def ex-eleven-bar-expected
+  "(ns example.eleven.bar
+  (:require [example.moved.eleven]))
+
+(example.moved.eleven/foo)")
+
+(def ex-twelve
+  "(ns example.twelve)
+  (:require [example.twelve.bar]))
+
+(example.twelve.bar/foo)")
+
+(def ex-twelve-expected
+  "(ns example.twelve)
+  (:require [example.bar]))
+
+(example.bar/foo)")
+
+(def ex-twelve-bar
+  "(ns example.twelve.bar)
+
+(defn foo [] nil)")
+
+(def ex-twelve-bar-expected
+  "(ns example.bar)
+
+(defn foo [] nil)")
+
 (defn- create-temp-dir! [dir-name]
   (let [temp-file (File/createTempFile dir-name nil)]
     (.delete temp-file)
@@ -197,7 +241,13 @@
         old-file-cljc2    (create-source-file! (io/file example-dir "cross2.cljc") ex-cljc2)
         new-file-cljc2    (io/file example-dir "moved" "cross2.cljc")
         file-ten-clj  (create-source-file! (io/file example-dir "ten.clj") ex-ten-clj)
-        file-ten-cljs (create-source-file! (io/file example-dir "ten.cljs") ex-ten-cljs)]
+        file-ten-cljs (create-source-file! (io/file example-dir "ten.cljs") ex-ten-cljs)
+        old-file-eleven (create-source-file! (io/file example-dir "eleven.clj") ex-eleven)
+        new-file-eleven (io/file example-dir "moved" "eleven.clj")
+        file-eleven-bar (create-source-file! (io/file example-dir "eleven" "bar.clj") ex-eleven-bar)
+        old-file-twelve-bar (create-source-file! (io/file example-dir "twelve" "bar.clj") ex-twelve-bar)
+        new-file-twelve-bar (io/file example-dir "bar.clj")
+        file-twelve   (create-source-file! (io/file example-dir "twelve.clj") ex-twelve)]
 
     (let [file-three-last-modified (.lastModified file-three)]
 
@@ -285,4 +335,24 @@
         (t/is (= (slurp file-ten-clj) ex-ten-clj-expected)
               "affected clj file not correct")
         (t/is (= (slurp file-ten-cljs) ex-ten-cljs-expected)
-              "affected cljs file not correct")))))
+              "affected cljs file not correct"))
+
+      (t/testing "testing moving namespace which is prefix of another ns"
+        (sut/move-ns 'example.eleven 'example.moved.eleven src-dir ".clj" [src-dir])
+
+        (t/is (.exists new-file-eleven)
+              "new file should exist")
+        (t/is (= (slurp new-file-eleven) ex-eleven-expected)
+              "moved clj file should have new location")
+        (t/is (= (slurp file-eleven-bar) ex-eleven-bar-expected)
+              "old prefix namespace should only change with respect to prefix ns"))
+
+      (t/testing "testing moving namespace where prefix is another ns"
+        (sut/move-ns 'example.twelve.bar 'example.bar src-dir ".clj" [src-dir])
+
+        (t/is (.exists new-file-twelve-bar)
+              "new file should exist")
+        (t/is (= (slurp new-file-twelve-bar) ex-twelve-bar-expected)
+              "moved clj file should have new location")
+        (t/is (= (slurp file-twelve) ex-twelve-expected)
+              "prefixed namespace should only change with respect to moved ns")))))
