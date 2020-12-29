@@ -204,11 +204,14 @@
 
 (def ex-edn-prefixed-key
   "{:example.thirteen.foo/bar 1
-    :example.thirteen.toto/bar 2}")
+    example.thirteen.foo 2
+    :example.thirteen.toto/bar 3}")
+
 
 (def ex-edn-prefixed-key-expected
   "{:example.thirteen.bar/bar 1
-    :example.thirteen.toto/bar 2}")
+    example.thirteen.bar 2
+    :example.thirteen.toto/bar 3}")
 
 (defn- create-temp-dir! [dir-name]
   (let [temp-file (File/createTempFile dir-name nil)]
