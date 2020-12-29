@@ -289,7 +289,7 @@
   "Moves the .clj, .cljc or .cljs source file (found relative
   to source-path) for the namespace named old-sym to new-sym and
   replace all occurrences of the old name with the new name in all
-  Clojure source files found in dirs.
+  Clojure(script) source files found in dirs.
 
   This is partly textual transformation. It works on
   namespaces require'd or use'd from a prefix list.
@@ -302,3 +302,22 @@
   ([old-sym new-sym source-path extension dirs]
    (move-ns-file old-sym new-sym extension source-path)
    (replace-ns-symbol-in-source-files old-sym new-sym extension dirs)))
+
+(defn replace-prefix
+  "Moves the .clj, .cljc or .cljs source files (found relative
+  to source-paths in dirs) for namespaces prefixed with old-sym-prefix
+  to namespaces with new-sym prefixes and
+  replace all occurrences of the old name with the new name in all
+  Clojure(script) source files found in dirs.
+
+  WARNING: This function modifies and deletes your source files! Make
+  sure you have a backup or version control."
+  [old-sym-prefix new-sym-prefix dirs]
+  (let [dirs+nss (p/pmap (fn [dir]
+                           {:dir dir
+                            :nss (->> (find/find-namespaces-in-dir dir)
+                                      (filter #(util/prefix-ns? old-sym-prefix %)))}) dirs)]
+    ;; not doing this in parallel as it might mess up things
+    (doseq [{:keys [dir nss]} dirs+nss]
+      (doseq [ns nss]
+        (move-ns ns (util/replace-prefix old-sym-prefix new-sym-prefix ns) dir dirs)))))

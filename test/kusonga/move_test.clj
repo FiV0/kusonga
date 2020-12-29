@@ -1,6 +1,5 @@
 (ns kusonga.move-test
   (:require [kusonga.move :as sut]
-            [kusonga.util :as util]
             [clojure.test :as t]
             [clojure.java.io :as io])
   (:import [java.io File]))
@@ -16,7 +15,6 @@
 
 (def ex-2
   "(ns
-  ^{:added \"0.0.1\"}
   example.two
   (:require [example.three :as three]
             [example.a.four :as four]
@@ -228,42 +226,42 @@
 ;; this test is a slightly rewritten version of the original test for c.t.namespace.move from
 ;; https://github.com/clojure/tools.namespace/blob/master/src/test/clojure/clojure/tools/namespace/move_test.clj
 (t/deftest move-ns-test
-  (let [temp-dir      (create-temp-dir! "tools-namespace-t-move-ns")
-        src-dir       (io/file temp-dir "src")
-        example-dir   (io/file temp-dir "src" "example")
-        a-dir         (io/file temp-dir "src" "example" "a")
-        with-dash-dir (io/file temp-dir "src" "example" "with_dash")
-        file-one      (create-source-file! (io/file example-dir "one.clj") ex-1)
-        file-two      (create-source-file! (io/file example-dir "two.clj") ex-2)
-        file-three    (create-source-file! (io/file example-dir "three.clj") ex-3)
-        old-file-four (create-source-file! (io/file a-dir "four.clj") ex-a-4)
-        new-file-four (io/file example-dir "b" "four.clj")
-        file-five     (create-source-file! (io/file example-dir "five.clj") ex-5)
-        old-file-six  (create-source-file! (io/file with-dash-dir "six.clj") ex-6-with-dash)
-        new-file-six  (io/file example-dir "prefix" "with_dash" "six.clj")
-        file-edn      (create-source-file! (io/file example-dir "edn.clj") ex-edn)
-        file-cljc     (create-source-file! (io/file example-dir "cross.cljc") ex-cljc)
-        _file-seven-clj  (create-source-file! (io/file example-dir "seven.clj") ex-seven-clj)
-        _file-seven-cljs (create-source-file! (io/file example-dir "seven.cljs") ex-seven-cljs)
+  (let [temp-dir             (create-temp-dir! "tools-namespace-t-move-ns")
+        src-dir              (io/file temp-dir "src")
+        example-dir          (io/file temp-dir "src" "example")
+        a-dir                (io/file temp-dir "src" "example" "a")
+        with-dash-dir        (io/file temp-dir "src" "example" "with_dash")
+        file-one             (create-source-file! (io/file example-dir "one.clj") ex-1)
+        file-two             (create-source-file! (io/file example-dir "two.clj") ex-2)
+        file-three           (create-source-file! (io/file example-dir "three.clj") ex-3)
+        old-file-four        (create-source-file! (io/file a-dir "four.clj") ex-a-4)
+        new-file-four        (io/file example-dir "b" "four.clj")
+        file-five            (create-source-file! (io/file example-dir "five.clj") ex-5)
+        old-file-six         (create-source-file! (io/file with-dash-dir "six.clj") ex-6-with-dash)
+        new-file-six         (io/file example-dir "prefix" "with_dash" "six.clj")
+        file-edn             (create-source-file! (io/file example-dir "edn.clj") ex-edn)
+        file-cljc            (create-source-file! (io/file example-dir "cross.cljc") ex-cljc)
+        _file-seven-clj      (create-source-file! (io/file example-dir "seven.clj") ex-seven-clj)
+        _file-seven-cljs     (create-source-file! (io/file example-dir "seven.cljs") ex-seven-cljs)
         new-file-seven-clj   (io/file example-dir "moved" "seven.clj")
         new-file-seven-cljs  (io/file example-dir "moved" "seven.cljs")
-        medley-dir    (io/file src-dir "medley")
-        _file-medley   (create-source-file! (io/file medley-dir "core.clj") medley-stub)
-        file-medley-user (create-source-file! (io/file example-dir "user" "medley.clj") medley-user-example)
-        _file-eight    (create-source-file! (io/file example-dir "eight.clj") example-eight)
-        file-nine     (create-source-file! (io/file example-dir "nine.clj") example-nine)
-        _old-file-cljc2    (create-source-file! (io/file example-dir "cross2.cljc") ex-cljc2)
-        new-file-cljc2    (io/file example-dir "moved" "cross2.cljc")
-        file-ten-clj  (create-source-file! (io/file example-dir "ten.clj") ex-ten-clj)
-        file-ten-cljs (create-source-file! (io/file example-dir "ten.cljs") ex-ten-cljs)
-        _old-file-eleven (create-source-file! (io/file example-dir "eleven.clj") ex-eleven)
-        new-file-eleven (io/file example-dir "moved" "eleven.clj")
-        file-eleven-bar (create-source-file! (io/file example-dir "eleven" "bar.clj") ex-eleven-bar)
+        medley-dir           (io/file src-dir "medley")
+        _file-medley         (create-source-file! (io/file medley-dir "core.clj") medley-stub)
+        file-medley-user     (create-source-file! (io/file example-dir "user" "medley.clj") medley-user-example)
+        _file-eight          (create-source-file! (io/file example-dir "eight.clj") example-eight)
+        file-nine            (create-source-file! (io/file example-dir "nine.clj") example-nine)
+        _old-file-cljc2      (create-source-file! (io/file example-dir "cross2.cljc") ex-cljc2)
+        new-file-cljc2       (io/file example-dir "moved" "cross2.cljc")
+        file-ten-clj         (create-source-file! (io/file example-dir "ten.clj") ex-ten-clj)
+        file-ten-cljs        (create-source-file! (io/file example-dir "ten.cljs") ex-ten-cljs)
+        _old-file-eleven     (create-source-file! (io/file example-dir "eleven.clj") ex-eleven)
+        new-file-eleven      (io/file example-dir "moved" "eleven.clj")
+        file-eleven-bar      (create-source-file! (io/file example-dir "eleven" "bar.clj") ex-eleven-bar)
         _old-file-twelve-bar (create-source-file! (io/file example-dir "twelve" "bar.clj") ex-twelve-bar)
-        new-file-twelve-bar (io/file src-dir "example2" "bar.clj")
-        file-twelve   (create-source-file! (io/file example-dir "twelve.clj") ex-twelve)
-        _file-thirteen (create-source-file! (io/file example-dir "thirteen" "foo.clj") ex-13)
-        file-edn-prefixed (create-source-file! (io/file src-dir "edn-prefixed.edn") ex-edn-prefixed-key)]
+        new-file-twelve-bar  (io/file src-dir "example2" "bar.clj")
+        file-twelve          (create-source-file! (io/file example-dir "twelve.clj") ex-twelve)
+        _file-thirteen       (create-source-file! (io/file example-dir "thirteen" "foo.clj") ex-13)
+        file-edn-prefixed    (create-source-file! (io/file src-dir "edn-prefixed.edn") ex-edn-prefixed-key)]
 
     (let [file-three-last-modified (.lastModified file-three)]
 
@@ -391,3 +389,121 @@
 
         (t/is (= (slurp file-edn-prefixed) ex-edn-prefixed-key-expected)
               "prefixed namespace should change in edn files")))))
+
+(def ex-not "(ns not.example)")
+
+(def ex-1-expected-prefix
+  "(ns hello.one
+  (:require [hello.two :as two]
+            [hello.three :as three]))
+
+(defn foo [m]
+  (:hello.a.four/bar m)
+  (hello.a.four/foo))")
+
+(def ex-2-expected-prefix
+  "(ns
+  hello.two
+  (:require [hello.three :as three]
+            [hello.a.four :as four]
+            [hello.a
+             [foo]
+             [bar]])
+  (:import [hello.a.four FourType]
+           hello.a.four.FooType))
+
+(defn foo []
+  (hello.a.four/foo))
+
+(defn cljs-foo
+  \"This is valid in cljs i am told.\"
+  []
+  (hello.a.four.foo))
+
+(def delayed-four
+  (do
+    (require 'hello.a.four)
+    (resolve 'hello.a.four/foo)))
+
+(defn my-four-type
+  ^hello.a.four.FourType
+  [^hello.a.four.FourType t]
+  t)")
+
+(def ex-3-expected-prefix
+  "(ns hello.three
+  (:require [hello.five :as five]))
+
+(defn use-ex-six-fully-qualified []
+  (hello.with_dash.six.SomeType. :type)
+  (hello.with_dash.six.SomeRecord. :record))")
+
+(def ex-a-4-expected-prefix
+  "(comment \"foobar comment here\")
+
+(ns hello.a.four)
+
+(defn foo []
+  (println \"nuf said\"))
+
+(deftype FourType [field])
+
+(deftype FooType [])")
+
+(def ex-5-expected-prefix
+  "(ns hello.five
+  (:import [hello.with_dash.six SomeType SomeRecord]))
+
+(defn- use-type-record []
+  (SomeType. :type)
+  (SomeRecord. :record))")
+
+(def ex-6-with-dash-expected-prefix
+  "(ns hello.with-dash.six)
+
+(deftype SomeType [field])
+
+(defrecord SomeRecord [field])")
+
+(t/deftest replace-prefix-test
+  (let [temp-dir            (create-temp-dir! "tools-namespace-t-move-ns")
+        src-dir             (io/file temp-dir "src")
+        example-dir         (io/file temp-dir "src" "example")
+        hello-dir           (io/file temp-dir "src" "hello")
+        a-dir               (io/file temp-dir "src" "example" "a")
+        hello-a-dir         (io/file hello-dir "a")
+        with-dash-dir       (io/file temp-dir "src" "example" "with_dash")
+        hello-with-dash-dir (io/file hello-dir "with_dash")
+        not-dir             (io/file temp-dir "src" "not")
+        _file-one           (create-source-file! (io/file example-dir "one.clj") ex-1)
+        file-one-moved      (io/file hello-dir "one.clj")
+        _file-two           (create-source-file! (io/file example-dir "two.clj") ex-2)
+        file-two-moved      (io/file hello-dir "two.clj")
+        _file-three         (create-source-file! (io/file example-dir "three.clj") ex-3)
+        file-three-moved    (io/file hello-dir "three.clj")
+        _file-four          (create-source-file! (io/file a-dir "four.clj") ex-a-4)
+        file-four-moved     (io/file hello-a-dir "four.clj")
+        _file-five          (create-source-file! (io/file example-dir "five.clj") ex-5)
+        file-five-moved     (io/file hello-dir "five.clj")
+        _file-six           (create-source-file! (io/file with-dash-dir "six.clj") ex-6-with-dash)
+        file-six-moved      (io/file hello-with-dash-dir "six.clj")
+        file-not-example    (create-source-file! (io/file not-dir "example.clj") ex-not)]
+
+    (Thread/sleep 1500) ;; ensure file timestamps are different
+    (t/testing "testing replaing prefix of namespaces"
+      (sut/replace-prefix 'example 'hello [src-dir])
+
+      (t/is (= (slurp file-one-moved) ex-1-expected-prefix)
+            "moved file 1 not correct")
+      (t/is (= (slurp file-two-moved) ex-2-expected-prefix)
+            "moved file 2 not correct")
+      (t/is (= (slurp file-three-moved) ex-3-expected-prefix)
+            "moved file 3 not correct")
+      (t/is (= (slurp file-four-moved) ex-a-4-expected-prefix)
+            "moved file 4 not correct")
+      (t/is (= (slurp file-five-moved) ex-5-expected-prefix)
+            "moved file 5 not correct")
+      (t/is (= (slurp file-six-moved) ex-6-with-dash-expected-prefix)
+            "moved file 6 not correct")
+      (t/is (= (slurp file-not-example) ex-not)
+            "non prefixed ns should not be changed"))))

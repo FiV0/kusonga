@@ -37,7 +37,7 @@
   (let [prefix-ls (str/split (str prefix-sym) #"\.")]
     (= prefix-ls (take (count prefix-ls) (str/split (str ns-sym) #"\.")))))
 
-(defn replace-prefix [new-prefix-sym old-prefix-sym ns-sym]
+(defn replace-prefix [old-prefix-sym new-prefix-sym ns-sym]
   (let [prefix-ls (str/split (str old-prefix-sym) #"\.")]
     (->> (str/split (str ns-sym) #"\.")
          (drop (count prefix-ls))
