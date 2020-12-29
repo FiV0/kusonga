@@ -11,9 +11,12 @@ reasonable.
 ```clj
 (require '[kusonga.move :as move])
 
-(move/move-ns 'old.namespace.name 'new-namespace-name src-dir [src-dir another-dir])
+(move/move-ns 'old.namespace.name
+              'new.namespace.name
+              src-dir ; where to find the namespace
+              [src-dir another-dir]) ; directories where to rename occurences
 
-;; if you want to only move the Clojure namespace
+;; in case one wants to only move the Clojure namespace
 (move/move-ns 'old.namespace.name 'new-namespace-name src-dir ".clj" [src-dir another-dir])
 ```
 
@@ -24,16 +27,18 @@ namespaces that match.
 (move/replace-prefix 'io.my-cool-app 'com.my-awesome-app dir)
 ```
 
-Beware that the renaming also affects `edn` files. Any prefixed key is affected whenever the
+Beware that the renaming also affects `edn` files. Namespaced keys and symbols are affected whenever the
 corresponding namespace gets moved.
 ```edn
 {:foo.bar/toto nil
+ foo.bar nil
  :foo.toto/bar nil}
 ```
 becomes
 
 ```edn
 {:foo.fizz/toto nil
+ foo.fizz nil
  :foo.toto/bar nil}
 ```
 when renaming the namespace `'foo.bar` to `'foo.fizz`.
