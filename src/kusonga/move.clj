@@ -20,6 +20,7 @@
     kusonga.move
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
+            [clojure.tools.namespace.find :as find]
             [kusonga.util :as util]
             [parallel.core :as p]
             [rewrite-clj.parser :as parser]
@@ -225,7 +226,7 @@
       (recur (str/replace-first form (str (name platform) "_require") (z/string n)) rest-nodes))))
 
 (defn replace-ns-symbol
-  "ALPHA: subject to change. Given Clojure source as a file, replaces
+  "Given Clojure source as a file, replaces
   all occurrences of the namespace name old-sym with new-sym and
   returns modified source as a string.
 
@@ -252,23 +253,26 @@
      @new-source-sans-ns)))
 
 (defn move-ns-file
-  "ALPHA: subject to change. Moves the .clj, .cljc or .cljs source file (found relative
+  "Moves the .clj, .cljc or .cljs source file (found relative
   to source-path) for the namespace named old-sym to a file for a
   namespace named new-sym.
 
   WARNING: This function moves and deletes your source files! Make
   sure you have a backup or version control."
-  [old-sym new-sym extension source-path]
-  (if-let [old-file (sym->file source-path old-sym extension)]
-    (let [new-file (sym->file source-path new-sym extension)]
-      (.mkdirs (.getParentFile new-file))
-      (io/copy old-file new-file)
-      (.delete old-file)
-      (loop [dir (.getParentFile old-file)]
-        (when (empty? (.listFiles dir))
-          (.delete dir)
-          (recur (.getParentFile dir)))))
-    (throw (FileNotFoundException. (format "file for %s not found in %s" old-sym source-path)))))
+  ([old-sym new-sym source-path]
+   (doseq [ext (util/sym->file-extensions source-path old-sym)]
+     (move-ns-file old-sym new-sym ext source-path)))
+  ([old-sym new-sym extension source-path]
+   (if-let [old-file (sym->file source-path old-sym extension)]
+     (let [new-file (sym->file source-path new-sym extension)]
+       (.mkdirs (.getParentFile new-file))
+       (io/copy old-file new-file)
+       (.delete old-file)
+       (loop [dir (.getParentFile old-file)]
+         (when (empty? (.listFiles dir))
+           (.delete dir)
+           (recur (.getParentFile dir)))))
+     (throw (FileNotFoundException. (format "file for %s not found in %s" old-sym source-path))))))
 
 (defn replace-ns-symbol-in-source-files
   "Replaces all occurrences of the old name with the new name in
@@ -282,7 +286,7 @@
    (clojure-source-files dirs extension)))
 
 (defn move-ns
-  "ALPHA: subject to change. Moves the .clj, .cljc or .cljs source file (found relative
+  "Moves the .clj, .cljc or .cljs source file (found relative
   to source-path) for the namespace named old-sym to new-sym and
   replace all occurrences of the old name with the new name in all
   Clojure source files found in dirs.
@@ -292,6 +296,9 @@
 
   WARNING: This function modifies and deletes your source files! Make
   sure you have a backup or version control."
-  [old-sym new-sym source-path extension dirs]
-  (move-ns-file old-sym new-sym extension source-path)
-  (replace-ns-symbol-in-source-files old-sym new-sym extension dirs))
+  ([old-sym new-sym source-path dirs]
+   (doseq [ext (util/sym->file-extensions source-path old-sym)]
+     (move-ns old-sym new-sym source-path ext dirs)))
+  ([old-sym new-sym source-path extension dirs]
+   (move-ns-file old-sym new-sym extension source-path)
+   (replace-ns-symbol-in-source-files old-sym new-sym extension dirs)))

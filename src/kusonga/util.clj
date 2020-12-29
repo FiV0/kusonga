@@ -1,6 +1,7 @@
 (ns kusonga.util
-  (:require [clojure.string :as str]
-            [clojure.set :as set])
+  (:require [clojure.java.io :as io]
+            [clojure.set :as set]
+            [clojure.string :as str])
   (:import [java.io File]))
 
 (defn sym->file-name
@@ -8,6 +9,11 @@
   (-> (name sym)
       (str/replace "-" "_")
       (str/replace "." File/separator)))
+
+(defn sym->file-extensions [src-path sym]
+  (let [file-name (sym->file-name sym)]
+    (filter #(.exists (io/file src-path (str file-name %)))
+            '(".clj" ".cljs" ".cljc"))))
 
 (defn file->extension
   [file]
@@ -26,3 +32,15 @@
     (->>  #{platform}
           (set/difference #{:cljs :clj})
           first)))
+
+(defn prefix-ns? [prefix-sym ns-sym]
+  (let [prefix-ls (str/split (str prefix-sym) #"\.")]
+    (= prefix-ls (take (count prefix-ls) (str/split (str ns-sym) #"\.")))))
+
+(defn replace-prefix [new-prefix-sym old-prefix-sym ns-sym]
+  (let [prefix-ls (str/split (str old-prefix-sym) #"\.")]
+    (->> (str/split (str ns-sym) #"\.")
+         (drop (count prefix-ls))
+         (str/join ".")
+         (str new-prefix-sym ".")
+         symbol)))

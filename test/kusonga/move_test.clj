@@ -1,5 +1,6 @@
 (ns kusonga.move-test
   (:require [kusonga.move :as sut]
+            [kusonga.util :as util]
             [clojure.test :as t]
             [clojure.java.io :as io])
   (:import [java.io File]))
@@ -242,31 +243,33 @@
         new-file-six  (io/file example-dir "prefix" "with_dash" "six.clj")
         file-edn      (create-source-file! (io/file example-dir "edn.clj") ex-edn)
         file-cljc     (create-source-file! (io/file example-dir "cross.cljc") ex-cljc)
-        file-seven-clj  (create-source-file! (io/file example-dir "seven.clj") ex-seven-clj)
-        file-seven-cljs (create-source-file! (io/file example-dir "seven.cljs") ex-seven-cljs)
+        _file-seven-clj  (create-source-file! (io/file example-dir "seven.clj") ex-seven-clj)
+        _file-seven-cljs (create-source-file! (io/file example-dir "seven.cljs") ex-seven-cljs)
+        new-file-seven-clj   (io/file example-dir "moved" "seven.clj")
+        new-file-seven-cljs  (io/file example-dir "moved" "seven.cljs")
         medley-dir    (io/file src-dir "medley")
-        file-medley   (create-source-file! (io/file medley-dir "core.clj") medley-stub)
+        _file-medley   (create-source-file! (io/file medley-dir "core.clj") medley-stub)
         file-medley-user (create-source-file! (io/file example-dir "user" "medley.clj") medley-user-example)
-        file-eight    (create-source-file! (io/file example-dir "eight.clj") example-eight)
+        _file-eight    (create-source-file! (io/file example-dir "eight.clj") example-eight)
         file-nine     (create-source-file! (io/file example-dir "nine.clj") example-nine)
-        old-file-cljc2    (create-source-file! (io/file example-dir "cross2.cljc") ex-cljc2)
+        _old-file-cljc2    (create-source-file! (io/file example-dir "cross2.cljc") ex-cljc2)
         new-file-cljc2    (io/file example-dir "moved" "cross2.cljc")
         file-ten-clj  (create-source-file! (io/file example-dir "ten.clj") ex-ten-clj)
         file-ten-cljs (create-source-file! (io/file example-dir "ten.cljs") ex-ten-cljs)
-        old-file-eleven (create-source-file! (io/file example-dir "eleven.clj") ex-eleven)
+        _old-file-eleven (create-source-file! (io/file example-dir "eleven.clj") ex-eleven)
         new-file-eleven (io/file example-dir "moved" "eleven.clj")
         file-eleven-bar (create-source-file! (io/file example-dir "eleven" "bar.clj") ex-eleven-bar)
-        old-file-twelve-bar (create-source-file! (io/file example-dir "twelve" "bar.clj") ex-twelve-bar)
+        _old-file-twelve-bar (create-source-file! (io/file example-dir "twelve" "bar.clj") ex-twelve-bar)
         new-file-twelve-bar (io/file src-dir "example2" "bar.clj")
         file-twelve   (create-source-file! (io/file example-dir "twelve.clj") ex-twelve)
-        file-thirteen (create-source-file! (io/file example-dir "thirteen" "foo.clj") ex-13)
+        _file-thirteen (create-source-file! (io/file example-dir "thirteen" "foo.clj") ex-13)
         file-edn-prefixed (create-source-file! (io/file src-dir "edn-prefixed.edn") ex-edn-prefixed-key)]
 
     (let [file-three-last-modified (.lastModified file-three)]
 
       (Thread/sleep 1500) ;; ensure file timestamps are different
       (t/testing "move ns simple case, no dash, no deftype, defrecord"
-        (sut/move-ns 'example.a.four 'example.b.four src-dir ".clj" [src-dir])
+        (sut/move-ns 'example.a.four 'example.b.four src-dir [src-dir])
 
         ;; (println "affected after move")
         ;; (doseq [a [file-one file-two new-file-four]]
@@ -303,12 +306,12 @@
               "clj file wo/ ns macro is unchanged"))
 
       (t/testing "testing import deftype no dash, dash in the prefix"
-        (sut/move-ns 'example.eight 'with-dash.example.eight src-dir ".clj" [src-dir])
+        (sut/move-ns 'example.eight 'with-dash.example.eight src-dir [src-dir])
 
         (t/is (= (slurp file-nine) example-nine-expected)))
 
       (t/testing "move ns with dash, deftype, defrecord, import"
-        (sut/move-ns 'example.with-dash.six 'example.prefix.with-dash.six src-dir ".clj" [src-dir])
+        (sut/move-ns 'example.with-dash.six 'example.prefix.with-dash.six src-dir [src-dir])
 
         ;; (println "affected after move")
         ;; (doseq [a [file-three file-five new-file-six new-file-four]]
@@ -332,14 +335,27 @@
 
         (t/is (= (slurp file-cljc) ex-cljc-expected)))
 
+      (t/testing (str "testing cljc file using :clj/cljs macros in"
+                      "require depending on same ns in clj and cljs in one go")
+        (create-source-file! (io/file example-dir "seven.clj") ex-seven-clj)
+        (create-source-file! (io/file example-dir "seven.cljs") ex-seven-cljs)
+        (sut/move-ns 'example.seven 'example.moved.seven src-dir [src-dir])
+
+        (t/is (= (slurp file-cljc) ex-cljc-expected))
+
+        (t/is (.exists new-file-seven-clj)
+              "new clj file should exist")
+        (t/is (.exists new-file-seven-cljs)
+              "new cljs file should exist"))
+
       (t/testing "testing alias is first section of two section namespace"
-        (sut/move-ns 'medley.core 'moved.medley.core src-dir ".clj" [src-dir])
+        (sut/move-ns 'medley.core 'moved.medley.core src-dir [src-dir])
 
         (t/is (= (slurp file-medley-user) medley-user-expected)))
 
 
       (t/testing "testing moving cljc and corresponding clj/cljc spaces"
-        (sut/move-ns 'example.cross2 'example.moved.cross2 src-dir ".cljc" [src-dir])
+        (sut/move-ns 'example.cross2 'example.moved.cross2 src-dir [src-dir])
 
         (t/is (.exists new-file-cljc2)
               "new file should exist")
@@ -351,7 +367,7 @@
               "affected cljs file not correct"))
 
       (t/testing "testing moving namespace which is prefix of another ns"
-        (sut/move-ns 'example.eleven 'example.moved.eleven src-dir ".clj" [src-dir])
+        (sut/move-ns 'example.eleven 'example.moved.eleven src-dir [src-dir])
 
         (t/is (.exists new-file-eleven)
               "new file should exist")
@@ -361,7 +377,7 @@
               "old prefix namespace should only change with respect to prefix ns"))
 
       (t/testing "testing moving namespace where prefix is another ns"
-        (sut/move-ns 'example.twelve.bar 'example2.bar src-dir ".clj" [src-dir])
+        (sut/move-ns 'example.twelve.bar 'example2.bar src-dir [src-dir])
 
         (t/is (.exists new-file-twelve-bar)
               "new file should exist")
@@ -371,7 +387,7 @@
               "prefixed namespace should only change with respect to moved ns"))
 
       (t/testing "prefixed edn is changed"
-        (sut/move-ns 'example.thirteen.foo 'example.thirteen.bar src-dir ".clj" [src-dir])
+        (sut/move-ns 'example.thirteen.foo 'example.thirteen.bar src-dir [src-dir])
 
         (t/is (= (slurp file-edn-prefixed) ex-edn-prefixed-key-expected)
               "prefixed namespace should change in edn files")))))
