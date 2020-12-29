@@ -186,9 +186,9 @@
 
 (def ex-twelve-expected
   "(ns example.twelve)
-  (:require [example.bar]))
+  (:require [example2.bar]))
 
-(example.bar/foo)")
+(example2.bar/foo)")
 
 (def ex-twelve-bar
   "(ns example.twelve.bar)
@@ -196,9 +196,20 @@
 (defn foo [] nil)")
 
 (def ex-twelve-bar-expected
-  "(ns example.bar)
+  "(ns example2.bar)
 
 (defn foo [] nil)")
+
+(def ex-13
+  "(ns example.thirteen.bar)")
+
+(def ex-edn-prefixed-key
+  "{:example.thirteen.foo/bar 1
+    :example.thirteen.toto/bar 2}")
+
+(def ex-edn-prefixed-key-expected
+  "{:example.thirteen.bar/bar 1
+    :example.thirteen.toto/bar 2}")
 
 (defn- create-temp-dir! [dir-name]
   (let [temp-file (File/createTempFile dir-name nil)]
@@ -246,8 +257,10 @@
         new-file-eleven (io/file example-dir "moved" "eleven.clj")
         file-eleven-bar (create-source-file! (io/file example-dir "eleven" "bar.clj") ex-eleven-bar)
         old-file-twelve-bar (create-source-file! (io/file example-dir "twelve" "bar.clj") ex-twelve-bar)
-        new-file-twelve-bar (io/file example-dir "bar.clj")
-        file-twelve   (create-source-file! (io/file example-dir "twelve.clj") ex-twelve)]
+        new-file-twelve-bar (io/file src-dir "example2" "bar.clj")
+        file-twelve   (create-source-file! (io/file example-dir "twelve.clj") ex-twelve)
+        file-thirteen (create-source-file! (io/file example-dir "thirteen" "foo.clj") ex-13)
+        file-edn-prefixed (create-source-file! (io/file src-dir "edn-prefixed.edn") ex-edn-prefixed-key)]
 
     (let [file-three-last-modified (.lastModified file-three)]
 
@@ -348,11 +361,17 @@
               "old prefix namespace should only change with respect to prefix ns"))
 
       (t/testing "testing moving namespace where prefix is another ns"
-        (sut/move-ns 'example.twelve.bar 'example.bar src-dir ".clj" [src-dir])
+        (sut/move-ns 'example.twelve.bar 'example2.bar src-dir ".clj" [src-dir])
 
         (t/is (.exists new-file-twelve-bar)
               "new file should exist")
         (t/is (= (slurp new-file-twelve-bar) ex-twelve-bar-expected)
               "moved clj file should have new location")
         (t/is (= (slurp file-twelve) ex-twelve-expected)
-              "prefixed namespace should only change with respect to moved ns")))))
+              "prefixed namespace should only change with respect to moved ns"))
+
+      (t/testing "prefixed edn is changed"
+        (sut/move-ns 'example.thirteen.foo 'example.thirteen.bar src-dir ".clj" [src-dir])
+
+        (t/is (= (slurp file-edn-prefixed) ex-edn-prefixed-key-expected)
+              "prefixed namespace should change in edn files")))))

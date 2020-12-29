@@ -49,9 +49,9 @@
      (and (= ".cljc" extension-of-moved)
           (all-extensions file-ext))
      (= file-ext extension-of-moved)
-     (= file-ext ".cljc"))))
+     (#{".cljc" ".edn"} file-ext))))
 
-(defn- clojure-source-files [dirs extension]
+(defn clojure-source-files [dirs extension]
   (->> dirs
        (map io/file)
        (filter #(.exists ^File %))
@@ -252,7 +252,7 @@
      @new-source-sans-ns)))
 
 (defn move-ns-file
-  "ALPHA: subject to change. Moves the .clj or .cljc source file (found relative
+  "ALPHA: subject to change. Moves the .clj, .cljc or .cljs source file (found relative
   to source-path) for the namespace named old-sym to a file for a
   namespace named new-sym.
 

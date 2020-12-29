@@ -11,7 +11,8 @@
 
 (defn file->extension
   [file]
-  (re-find #"\.clj[cs]?$" file))
+  (or (re-find #"\.clj[cs]?$" file)
+      (re-find #"\.edn" file)))
 
 (defn extension->platform
   [extension-of-moved]
