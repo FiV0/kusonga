@@ -315,7 +315,9 @@
   [old-sym-prefix new-sym-prefix dirs]
   (let [dirs+nss (p/pmap (fn [dir]
                            {:dir dir
-                            :nss (->> (find/find-namespaces-in-dir dir)
+                            :nss (->> (concat (find/find-namespaces-in-dir dir find/clj)
+                                              (find/find-namespaces-in-dir dir find/cljs))
+                                      distinct
                                       (filter #(util/prefix-ns? old-sym-prefix %)))}) dirs)]
     ;; not doing this in parallel as it might mess up things
     (doseq [{:keys [dir nss]} dirs+nss]

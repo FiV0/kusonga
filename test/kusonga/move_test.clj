@@ -468,6 +468,10 @@
 
 (defrecord SomeRecord [field])")
 
+(def ex-14-cljs "(ns example.fourteen)")
+
+(def ex-14-cljs-expected "(ns hello.fourteen)")
+
 (t/deftest replace-prefix-test
   (let [temp-dir            (create-temp-dir! "tools-namespace-t-move-ns")
         src-dir             (io/file temp-dir "src")
@@ -490,7 +494,9 @@
         file-five-moved     (io/file hello-dir "five.clj")
         _file-six           (create-source-file! (io/file with-dash-dir "six.clj") ex-6-with-dash)
         file-six-moved      (io/file hello-with-dash-dir "six.clj")
-        file-not-example    (create-source-file! (io/file not-dir "example.clj") ex-not)]
+        file-not-example    (create-source-file! (io/file not-dir "example.clj") ex-not)
+        _file-fourteen      (create-source-file! (io/file example-dir "fourteen.cljs") ex-14-cljs)
+        file-fourteen-moved (io/file hello-dir "fourteen.cljs")]
 
     (Thread/sleep 1500) ;; ensure file timestamps are different
     (t/testing "testing replaing prefix of namespaces"
@@ -509,4 +515,6 @@
       (t/is (= (slurp file-six-moved) ex-6-with-dash-expected-prefix)
             "moved file 6 not correct")
       (t/is (= (slurp file-not-example) ex-not)
-            "non prefixed ns should not be changed"))))
+            "non prefixed ns should not be changed")
+      (t/is (= (slurp file-fourteen-moved) ex-14-cljs-expected)
+            "moved cljs file not correct"))))
