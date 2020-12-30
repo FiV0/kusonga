@@ -318,7 +318,9 @@
                             :nss (->> (concat (find/find-namespaces-in-dir dir find/clj)
                                               (find/find-namespaces-in-dir dir find/cljs))
                                       distinct
-                                      (filter #(util/prefix-ns? old-sym-prefix %)))}) dirs)]
+                                      (filter #(util/prefix-ns? old-sym-prefix %))
+                                      ;; needed as otherwise ns finding happens when things already move
+                                      doall)}) dirs)]
     ;; not doing this in parallel as it might mess up things
     (doseq [{:keys [dir nss]} dirs+nss]
       (doseq [ns nss]
