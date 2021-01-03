@@ -52,7 +52,7 @@
      (= file-ext extension-of-moved)
      (#{".cljc" ".edn"} file-ext))))
 
-(defn clojure-source-files [dirs extension]
+(defn- clojure-source-files [dirs extension]
   (->> dirs
        (map io/file)
        (filter #(.exists ^File %))
@@ -121,7 +121,7 @@
   (when-not (#{:uneval} (b/tag node))
     (= 'ns (b/sexpr (z/down node)))))
 
-(def ^:const ns-form-placeholder (str "ns_" "form_" "placeholder"))
+(def ^:const ^:private ns-form-placeholder (str "ns_" "form_" "placeholder"))
 
 (defn- split-ns-form-ns-body
   "Returns ns form as a rewrite-clj loc and the ns body as string with a place holder for the ns form."
