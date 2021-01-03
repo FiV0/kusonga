@@ -1,6 +1,11 @@
 # kusonga
 
+[![Clojars Project](https://img.shields.io/clojars/v/fiv0/kusonga)](https://clojars.org/fiv0/kusonga)
+[![cljdoc badge](https://cljdoc.org/badge/fiv0/kusonga?0.1.0)](https://cljdoc.org/d/fiv0/kusonga/CURRENT)
+
 Renaming and moving namespaces.
+
+----
 
 The library is mainly an extraction from
 [mranderson](https://github.com/benedekfazekas/mranderson)'s move namespace. It allows you
@@ -27,7 +32,8 @@ namespaces that match.
 (move/rename-prefix 'io.my-cool-app 'com.my-awesome-app dir)
 ```
 
-Beware that the renaming also affects `edn` files. Namespaced keys and symbols are affected whenever the
+Beware that moving and renaming namespaces also affects `edn` files.
+Namespaced keys and symbols are affected whenever the
 corresponding namespace gets moved.
 ```edn
 {:foo.bar/toto nil
