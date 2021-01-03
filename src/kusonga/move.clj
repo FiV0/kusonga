@@ -303,7 +303,7 @@
    (move-ns-file old-sym new-sym extension source-path)
    (replace-ns-symbol-in-source-files old-sym new-sym extension dirs)))
 
-(defn replace-prefix
+(defn rename-prefix
   "Moves the .clj, .cljc or .cljs source files (found relative
   to source-paths in dirs) for namespaces prefixed with old-sym-prefix
   to namespaces with new-sym prefixes and

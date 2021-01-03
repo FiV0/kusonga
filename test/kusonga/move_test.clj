@@ -472,7 +472,7 @@
 
 (def ex-14-cljs-expected "(ns hello.fourteen)")
 
-(t/deftest replace-prefix-test
+(t/deftest rename-prefix-test
   (let [temp-dir            (create-temp-dir! "tools-namespace-t-move-ns")
         src-dir             (io/file temp-dir "src")
         example-dir         (io/file temp-dir "src" "example")
@@ -500,7 +500,7 @@
 
     (Thread/sleep 1500) ;; ensure file timestamps are different
     (t/testing "testing replaing prefix of namespaces"
-      (sut/replace-prefix 'example 'hello [src-dir])
+      (sut/rename-prefix 'example 'hello [src-dir])
 
       (t/is (= (slurp file-one-moved) ex-1-expected-prefix)
             "moved file 1 not correct")
