@@ -16,7 +16,10 @@
    :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
                                            :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
    ;; :main-opts ["-m" "cognitect.test-runner"]
-   }}
+   }
+  :release
+  {:extra-deps {applied-science/deps-library {:mvn/version "0.4.0"}}
+   :main-opts ["-m" "applied-science.deps-library"]}}
 
  :mvn/repos
  {"central"        {:url "https://repo1.maven.org/maven2/"}
