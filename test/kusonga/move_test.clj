@@ -472,6 +472,16 @@
 
 (def ex-14-cljs-expected "(ns hello.fourteen)")
 
+(def ex-15-prefix
+  "(ns example.fifeteen)
+
+  {'example.fifeteen.bar 1}")
+
+(def ex-15-expected-prefix
+  "(ns hello.fifeteen)
+
+  {'hello.fifeteen.bar 1}")
+
 (t/deftest rename-prefix-test
   (let [temp-dir            (create-temp-dir! "tools-namespace-t-move-ns")
         src-dir             (io/file temp-dir "src")
@@ -496,10 +506,12 @@
         file-six-moved      (io/file hello-with-dash-dir "six.clj")
         file-not-example    (create-source-file! (io/file not-dir "example.clj") ex-not)
         _file-fourteen      (create-source-file! (io/file example-dir "fourteen.cljs") ex-14-cljs)
-        file-fourteen-moved (io/file hello-dir "fourteen.cljs")]
+        file-fourteen-moved (io/file hello-dir "fourteen.cljs")
+        _file-fifeteen      (create-source-file! (io/file example-dir "fifeteen.clj") ex-15-prefix)
+        file-fifeteen-moved (io/file hello-dir "fifeteen.clj")]
 
     (Thread/sleep 1500) ;; ensure file timestamps are different
-    (t/testing "testing replaing prefix of namespaces"
+    (t/testing "testing replacing prefix of namespaces"
       (sut/rename-prefix 'example 'hello [src-dir])
 
       (t/is (= (slurp file-one-moved) ex-1-expected-prefix)
@@ -517,4 +529,6 @@
       (t/is (= (slurp file-not-example) ex-not)
             "non prefixed ns should not be changed")
       (t/is (= (slurp file-fourteen-moved) ex-14-cljs-expected)
-            "moved cljs file not correct"))))
+            "moved cljs file not correct")
+      (t/is (= (slurp file-fifeteen-moved) ex-15-expected-prefix)
+            "moved clj file with symbol"))))
