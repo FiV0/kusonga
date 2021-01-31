@@ -472,6 +472,16 @@
 
 (def ex-14-cljs-expected "(ns hello.fourteen)")
 
+(def ex-14-clj-with-cljs-ref
+  "(ns hello.a.foo)
+
+  {'example.fourteen.bar 1}")
+
+(def ex-14-clj-with-cljs-ref-expected
+  "(ns hello.a.foo)
+
+  {'hello.fourteen.bar 1}")
+
 (def ex-15-prefix
   "(ns example.fifeteen)
 
@@ -528,6 +538,7 @@
         file-not-example        (create-source-file! (io/file not-dir "example.clj") ex-not)
         _file-fourteen          (create-source-file! (io/file example-dir "fourteen.cljs") ex-14-cljs)
         file-fourteen-moved     (io/file hello-dir "fourteen.cljs")
+        file-fourteen-clj       (create-source-file! (io/file hello-a-dir "foo.clj") ex-14-clj-with-cljs-ref)
         _file-fifeteen          (create-source-file! (io/file example-dir "fifeteen.clj") ex-15-prefix)
         file-fifeteen-moved     (io/file hello-dir "fifeteen.clj")
         _file-sixteen           (create-source-file! (io/file hello-dir "sixteen.clj") ex-16-prefix)
@@ -555,6 +566,8 @@
             "non prefixed ns should not be changed")
       (t/is (= (slurp file-fourteen-moved) ex-14-cljs-expected)
             "moved cljs file not correct")
+      (t/is (= (slurp file-fourteen-clj) ex-14-clj-with-cljs-ref-expected)
+            "cljs ref in clj file not updated")
       (t/is (= (slurp file-fifeteen-moved) ex-15-expected-prefix)
             "moved clj file with symbol"))
 
