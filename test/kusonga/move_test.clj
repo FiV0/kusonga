@@ -482,33 +482,58 @@
 
   {'hello.fifeteen.bar 1}")
 
+(def ex-16-prefix
+  "(ns hello.sixteen)
+
+  (defrecord HelloSixteen [])")
+
+(def ex-16-prefix-expected
+  "(ns hello.bar.sixteen)
+
+  (defrecord HelloSixteen [])")
+
+(def ex-16-imported
+  "(ns hello.sixteen.foo
+     (:import (hello.sixteen HelloSixteen)))")
+
+(def ex-16-imported-expected
+  "(ns hello.bar.sixteen.foo
+     (:import (hello.bar.sixteen HelloSixteen)))")
+
 (t/deftest rename-prefix-test
-  (let [temp-dir            (create-temp-dir! "tools-namespace-t-move-ns")
-        src-dir             (io/file temp-dir "src")
-        example-dir         (io/file temp-dir "src" "example")
-        hello-dir           (io/file temp-dir "src" "hello")
-        a-dir               (io/file temp-dir "src" "example" "a")
-        hello-a-dir         (io/file hello-dir "a")
-        with-dash-dir       (io/file temp-dir "src" "example" "with_dash")
-        hello-with-dash-dir (io/file hello-dir "with_dash")
-        not-dir             (io/file temp-dir "src" "not")
-        _file-one           (create-source-file! (io/file example-dir "one.clj") ex-1)
-        file-one-moved      (io/file hello-dir "one.clj")
-        _file-two           (create-source-file! (io/file example-dir "two.clj") ex-2)
-        file-two-moved      (io/file hello-dir "two.clj")
-        _file-three         (create-source-file! (io/file example-dir "three.clj") ex-3)
-        file-three-moved    (io/file hello-dir "three.clj")
-        _file-four          (create-source-file! (io/file a-dir "four.clj") ex-a-4)
-        file-four-moved     (io/file hello-a-dir "four.clj")
-        _file-five          (create-source-file! (io/file example-dir "five.clj") ex-5)
-        file-five-moved     (io/file hello-dir "five.clj")
-        _file-six           (create-source-file! (io/file with-dash-dir "six.clj") ex-6-with-dash)
-        file-six-moved      (io/file hello-with-dash-dir "six.clj")
-        file-not-example    (create-source-file! (io/file not-dir "example.clj") ex-not)
-        _file-fourteen      (create-source-file! (io/file example-dir "fourteen.cljs") ex-14-cljs)
-        file-fourteen-moved (io/file hello-dir "fourteen.cljs")
-        _file-fifeteen      (create-source-file! (io/file example-dir "fifeteen.clj") ex-15-prefix)
-        file-fifeteen-moved (io/file hello-dir "fifeteen.clj")]
+  (let [temp-dir                (create-temp-dir! "tools-namespace-t-move-ns")
+        src-dir                 (io/file temp-dir "src")
+        example-dir             (io/file temp-dir "src" "example")
+        hello-dir               (io/file temp-dir "src" "hello")
+        a-dir                   (io/file temp-dir "src" "example" "a")
+        hello-a-dir             (io/file hello-dir "a")
+        with-dash-dir           (io/file temp-dir "src" "example" "with_dash")
+        hello-with-dash-dir     (io/file hello-dir "with_dash")
+        not-dir                 (io/file temp-dir "src" "not")
+        hello-bar-dir           (io/file hello-dir "bar")
+        hello-16-dir            (io/file hello-dir "sixteen")
+        hello-bar-16-dir        (io/file hello-bar-dir "sixteen")
+        _file-one               (create-source-file! (io/file example-dir "one.clj") ex-1)
+        file-one-moved          (io/file hello-dir "one.clj")
+        _file-two               (create-source-file! (io/file example-dir "two.clj") ex-2)
+        file-two-moved          (io/file hello-dir "two.clj")
+        _file-three             (create-source-file! (io/file example-dir "three.clj") ex-3)
+        file-three-moved        (io/file hello-dir "three.clj")
+        _file-four              (create-source-file! (io/file a-dir "four.clj") ex-a-4)
+        file-four-moved         (io/file hello-a-dir "four.clj")
+        _file-five              (create-source-file! (io/file example-dir "five.clj") ex-5)
+        file-five-moved         (io/file hello-dir "five.clj")
+        _file-six               (create-source-file! (io/file with-dash-dir "six.clj") ex-6-with-dash)
+        file-six-moved          (io/file hello-with-dash-dir "six.clj")
+        file-not-example        (create-source-file! (io/file not-dir "example.clj") ex-not)
+        _file-fourteen          (create-source-file! (io/file example-dir "fourteen.cljs") ex-14-cljs)
+        file-fourteen-moved     (io/file hello-dir "fourteen.cljs")
+        _file-fifeteen          (create-source-file! (io/file example-dir "fifeteen.clj") ex-15-prefix)
+        file-fifeteen-moved     (io/file hello-dir "fifeteen.clj")
+        _file-sixteen           (create-source-file! (io/file hello-dir "sixteen.clj") ex-16-prefix)
+        file-sixteen-moved      (io/file hello-bar-dir "sixteen.clj")
+        _file-bar-sixteen       (create-source-file! (io/file hello-16-dir "foo.clj") ex-16-imported)
+        file-bar-sixteen-moved  (io/file hello-bar-16-dir "foo.clj")]
 
     (Thread/sleep 1500) ;; ensure file timestamps are different
     (t/testing "testing replacing prefix of namespaces"
@@ -531,4 +556,15 @@
       (t/is (= (slurp file-fourteen-moved) ex-14-cljs-expected)
             "moved cljs file not correct")
       (t/is (= (slurp file-fifeteen-moved) ex-15-expected-prefix)
-            "moved clj file with symbol"))))
+            "moved clj file with symbol"))
+
+    (t/testing "testing renaming prefix with exact namespace match"
+      (sut/rename-prefix 'hello.sixteen 'hello.bar.sixteen [src-dir])
+
+      (t/is (= (slurp file-sixteen-moved) ex-16-prefix-expected)
+            "exact namespace moved not working correctly")
+      (t/is (= (slurp file-bar-sixteen-moved) ex-16-imported-expected)
+            "prefix namespace moved not working correctly"))))
+
+(comment
+  (rename-prefix-test))

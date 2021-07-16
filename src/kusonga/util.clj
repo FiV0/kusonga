@@ -37,10 +37,18 @@
   (let [prefix-ls (str/split (str prefix-sym) #"\.")]
     (= prefix-ls (take (count prefix-ls) (str/split (str ns-sym) #"\.")))))
 
+
 (defn replace-prefix [old-prefix-sym new-prefix-sym ns-sym]
-  (let [prefix-ls (str/split (str old-prefix-sym) #"\.")]
-    (->> (str/split (str ns-sym) #"\.")
-         (drop (count prefix-ls))
-         (str/join ".")
-         (str new-prefix-sym ".")
-         symbol)))
+  (let [prefix-ls (str/split (str old-prefix-sym) #"\.")
+        ns-suffix (->> (str/split (str ns-sym) #"\.")
+                       (drop (count prefix-ls))
+                       (str/join "."))]
+    (cond-> new-prefix-sym
+      (not-empty ns-suffix) (str "." ns-suffix)
+      true symbol)))
+
+(comment
+  (replace-prefix 'hello 'foo 'hello.world)
+  (replace-prefix 'hello.foo 'hello.world 'hello.foo.world)
+  (replace-prefix 'hello.foo 'hello.world 'hello.banana.bar)
+  (replace-prefix 'hello.foo 'hello.world 'hello.foo))
