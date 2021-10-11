@@ -1,7 +1,7 @@
 # kusonga
 
 [![Clojars Project](https://img.shields.io/clojars/v/fiv0/kusonga)](https://clojars.org/fiv0/kusonga)
-[![cljdoc badge](https://cljdoc.org/badge/fiv0/kusonga?0.1.0)](https://cljdoc.org/d/fiv0/kusonga/CURRENT)
+[![cljdoc badge](https://cljdoc.org/badge/fiv0/kusonga?0.1.1)](https://cljdoc.org/d/fiv0/kusonga/CURRENT)
 
 Renaming and moving namespaces.
 
