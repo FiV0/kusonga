@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/clojure:openjdk-11-tools-deps-1.10.1.727
+      - image: circleci/clojure:openjdk-11-tools-deps-1.10.3.1020
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -42,4 +42,4 @@ jobs:
           key: v1-dependencies-{{ checksum "deps.edn" }}
 
       # run tests!
-      - run: clojure -M:test -m cognitect.test-runner
+      - run: clojure -X:test

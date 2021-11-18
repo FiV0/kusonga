@@ -49,6 +49,12 @@ becomes
 ```
 when renaming the namespace `'foo.bar` to `'foo.fizz`.
 
+## Test
+Tests can be run via
+```bash
+clojure -X:test
+```
+
 ## Contributing
 
 If you find a case where the library does do what it is expected to do,
