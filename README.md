@@ -29,7 +29,7 @@ In case you want to rename your project there is a function to replace the prefi
 namespaces that match.
 
 ```clj
-(move/rename-prefix 'io.my-cool-app 'com.my-awesome-app dir)
+(move/rename-prefix 'io.my-cool-app 'com.my-awesome-app dirs)
 ```
 
 Beware that moving and renaming namespaces also affects `edn` files.
